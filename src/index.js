@@ -1,4 +1,4 @@
-import '../pages/index.css'
+import '../src/index.css'
 import initialCards from './cards.js';
 import { createCard } from './components/card.js';
 import { openModal, closeModal, setCloseModalByOverlay } from './components/modal.js';
