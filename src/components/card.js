@@ -1,27 +1,49 @@
-export function createCard(cardData, handleImageClick) {
-    const template = document.querySelector('#card-template');
-    const cardTemplate = template.content.querySelector('.card').cloneNode(true);
+// card.js
+import { putLike, removeLike } from '../components/api.js';
 
-    const cardImage = cardTemplate.querySelector('.card__image');
-    const cardTitle = cardTemplate.querySelector('.card__title');
-    const deleteButton = cardTemplate.querySelector('.card__delete-button');
-    const likeButton = cardTemplate.querySelector('.card__like-button');
+export function createCard(cardData, handleCardClick, currentUserId) {
+  const cardTemplate = document.getElementById('card-template').content.querySelector('.places__item');
+  const cardElement = cardTemplate.cloneNode(true);
 
-    cardTitle.textContent = cardData.name;
-    cardImage.src = cardData.link;
-    cardImage.alt = cardData.name;
+  const cardImage = cardElement.querySelector('.card__image');
+  const cardTitle = cardElement.querySelector('.card__title');
+  const likeButton = cardElement.querySelector('.card__like-button');
+  const likeCountElem = cardElement.querySelector('.card__like-count');
+  const deleteButton = cardElement.querySelector('.card__delete-button');
 
-    deleteButton.addEventListener('click', () => {
-    cardTemplate.remove();
-    });
+  cardImage.src = cardData.link;
+  cardImage.alt = cardData.name;
+  cardTitle.textContent = cardData.name;
+  likeCountElem.textContent = cardData.likes.length;
 
-    likeButton.addEventListener('click', () => {
-    likeButton.classList.toggle('card__like-button_is-active');
-});
+  // Лайк
+  if (cardData.likes.some(user => user._id === currentUserId)) {
+    likeButton.classList.add('card__like-button_is-active');
+  }
 
-cardImage.addEventListener('click', () => {
-    handleImageClick(cardData);
-});
+  likeButton.addEventListener('click', () => {
+    const isLiked = likeButton.classList.contains('card__like-button_is-active');
 
-return cardTemplate;
+    (isLiked ? removeLike(cardData._id) : putLike(cardData._id))
+      .then(updatedCard => {
+        const isNowLiked = updatedCard.likes.some(user => user._id === currentUserId);
+        likeButton.classList.toggle('card__like-button_is-active', isNowLiked);
+        likeCountElem.textContent = updatedCard.likes.length;
+      })
+      .catch(err => {
+        console.error('Ошибка при обновлении лайка:', err);
+      });
+  });
+
+  // Удаление кнопки, если владелец не текущий пользователь
+  if (!cardData.owner || cardData.owner._id !== currentUserId) {
+    deleteButton.style.display = 'none';
+  }
+
+  // Клик по картинке — открыть попап с картинкой
+  cardImage.addEventListener('click', () => {
+    handleCardClick(cardData);
+  });
+
+  return cardElement;
 }

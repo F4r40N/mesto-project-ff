@@ -10,3 +10,20 @@
 @import url('./blocks/popup/popup.css');
 @import url('./blocks/popup/_is-animated/popup_is-animated.css');
 @import url('./blocks/popup/_is-opened/popup_is-opened.css');
+
+.profile__image_hovered {
+  position: relative;
+  cursor: pointer;
+
+}
+
+.profile__image_hovered::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: transparent url('./components/images/edit-icon.svg') center no-repeat;
+  background-size: 20px 20px;
+  border-radius: 50%;
+  background-color: rgba(1, 1, 1, 0.7);
+}

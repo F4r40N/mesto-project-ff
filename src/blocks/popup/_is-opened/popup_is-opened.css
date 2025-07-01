@@ -3,3 +3,28 @@
   opacity: 1;
   pointer-events: all;
 }
+
+.popup__error {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.popup_type_avatar {
+  max-width: 430px;
+  width: 100%;
+  min-height: 227px;
+  max-height: 272px;
+  height: auto;
+  background-color: #fff;
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 34px 36px;
+  flex-shrink: 0;
+  align-self: center;
+  justify-self: center;
+}
+
+.popup_type_avatar-input {
+  width: 100%;
+}
