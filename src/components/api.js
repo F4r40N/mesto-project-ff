@@ -14,7 +14,7 @@ function handleResponse(res) {
   if (res.ok) {
     return res.json();
   }
-  return Promise.reject(`Ошибка: ${res.status}`);
+  return Promise.reject(new Error(`Ошибка: ${res.status} ${res.statusText}`));
 }
 
 export function getUserInfo() {

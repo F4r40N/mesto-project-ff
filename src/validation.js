@@ -6,87 +6,44 @@ export function enableValidation(config) {
     const inputs = Array.from(form.querySelectorAll(config.inputSelector));
     const button = form.querySelector(config.submitButtonSelector);
 
-    inputs.forEach(input => {
-      if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('popup__error')) {
-        const errorElem = document.createElement('span');
-        errorElem.classList.add('popup__error');
-        errorElem.style.color = 'red';
-        errorElem.style.fontSize = '12px';
-        errorElem.style.marginTop = '4px';
-        input.insertAdjacentElement('afterend', errorElem);
+    function showInputError(input, message) {
+      const errorElem = input.nextElementSibling;
+      input.classList.add(config.inputErrorClass);
+      if (errorElem) {
+        errorElem.textContent = message;
       }
-    });
+    }
+
+    function hideInputError(input) {
+      const errorElem = input.nextElementSibling;
+      input.classList.remove(config.inputErrorClass);
+      if (errorElem) {
+        errorElem.textContent = '';
+      }
+    }
 
     function validateInput(input) {
-      const errorElem = input.nextElementSibling;
-      const value = input.value.trim();
-      const name = input.name;
+      input.setCustomValidity('');
 
-      if (!value) {
-        input.setCustomValidity('Это обязательное поле');
-        errorElem.textContent = input.validationMessage;
-        input.classList.add(config.inputErrorClass);
+      if (input.name === 'place-name') {
+        const pattern = input.getAttribute('pattern');
+        const value = input.value;
+
+        if (value.length > 0 && pattern) {
+          const regex = new RegExp(pattern);
+          if (!regex.test(value)) {
+            const customMessage = input.dataset.errorMessage || 'Неверный формат';
+            input.setCustomValidity(customMessage);
+          }
+        }
+      }
+
+      if (!input.validity.valid) {
+        showInputError(input, input.validationMessage);
         return false;
       }
 
-      const namePattern = /^[a-zA-Zа-яА-ЯёЁ\s-]{2,40}$/;
-      const descriptionPattern = /^[a-zA-Zа-яА-ЯёЁ0-9\s.,!?"'()-]{2,200}$/;
-      const placeNamePattern = /^[a-zA-Zа-яА-ЯёЁ0-9\s-]{2,30}$/;
-      const imageUrlPattern = /^https?:\/\/([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!'()*+,;=]*)*\.(jpg|jpeg|png|gif|svg|webp)$/i;
-      const avatarUrlPattern = /^https?:\/\/.+$/i;
-
-      if (form.name === 'edit-profile') {
-        if (name === 'name') {
-          if (!namePattern.test(value)) {
-            input.setCustomValidity('Имя должно содержать от 2 до 40 символов');
-            errorElem.textContent = input.validationMessage;
-            input.classList.add(config.inputErrorClass);
-            return false;
-          }
-        }
-        if (name === 'description') {
-          if (!descriptionPattern.test(value)) {
-            input.setCustomValidity('Описание должно содержать от 2 до 200 символов');
-            errorElem.textContent = input.validationMessage;
-            input.classList.add(config.inputErrorClass);
-            return false;
-          }
-        }
-      }
-
-      if (form.name === 'new-place') {
-        if (name === 'place-name') {
-          if (!placeNamePattern.test(value)) {
-            input.setCustomValidity('Название должно содержать от 2 до 30 символов');
-            errorElem.textContent = input.validationMessage;
-            input.classList.add(config.inputErrorClass);
-            return false;
-          }
-        }
-        if (name === 'link') {
-          if (!imageUrlPattern.test(value)) {
-            input.setCustomValidity('Введите корректный URL изображения');
-            errorElem.textContent = input.validationMessage;
-            input.classList.add(config.inputErrorClass);
-            return false;
-          }
-        }
-      }
-
-      if (form.name === 'avatar-update') {
-        if (name === 'avatar-link') {
-          if (!avatarUrlPattern.test(value)) {
-            input.setCustomValidity('Введите корректный URL');
-            errorElem.textContent = input.validationMessage;
-            input.classList.add(config.inputErrorClass);
-            return false;
-          }
-        }
-      }
-
-      input.setCustomValidity('');
-      errorElem.textContent = '';
-      input.classList.remove(config.inputErrorClass);
+      hideInputError(input);
       return true;
     }
 
@@ -98,13 +55,9 @@ export function enableValidation(config) {
       if (hasInvalidInput()) {
         button.disabled = true;
         button.classList.add(config.inactiveButtonClass);
-        button.style.backgroundColor = '#C4C4C4';
-        button.style.cursor = 'default';
       } else {
         button.disabled = false;
         button.classList.remove(config.inactiveButtonClass);
-        button.style.backgroundColor = '';
-        button.style.cursor = 'pointer';
       }
     }
 
@@ -116,14 +69,6 @@ export function enableValidation(config) {
     });
 
     toggleButtonState();
-
-    form.addEventListener('submit', evt => {
-      if (hasInvalidInput()) {
-        evt.preventDefault();
-        inputs.forEach(input => validateInput(input));
-        toggleButtonState();
-      }
-    });
   });
 }
 
@@ -142,20 +87,4 @@ export function clearValidation(formElement, config) {
 
   button.disabled = true;
   button.classList.add(config.inactiveButtonClass);
-  button.style.backgroundColor = '#C4C4C4';
-  button.style.cursor = 'default';
-}
-
-export function toggleButtonState(button, isEnabled) {
-  if (isEnabled) {
-    button.disabled = false;
-    button.classList.remove('popup__button_disabled');
-    button.style.backgroundColor = '';
-    button.style.cursor = 'pointer';
-  } else {
-    button.disabled = true;
-    button.classList.add('popup__button_disabled');
-    button.style.backgroundColor = '#C4C4C4';
-    button.style.cursor = 'default';
-  }
 }

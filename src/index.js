@@ -2,20 +2,19 @@
 import './index.css';
 import { createCard } from './components/card.js';
 import { openModal, closeModal, setCloseModalByOverlay } from './components/modal.js';
-import { enableValidation, clearValidation, toggleButtonState } from './validation.js';
+import { enableValidation, clearValidation } from './validation.js';
 import {
   getUserInfo,
   getInitialCards,
   editUserProfile,
   addNewCard,
-  deleteCard,
   updateUserAvatar
 } from './components/api.js';
 
 // DOM элементы
 const popupEdit = document.querySelector('.popup_type_edit');
 const popupAdd = document.querySelector('.popup_type_new-card');
-const popupAvatar = document.querySelector('.popup_type_avatar');
+const popupAvatar = document.getElementById('popup-avatar');
 const popupImage = document.querySelector('.popup_type_image');
 
 const profileEditButton = document.querySelector('.profile__edit-button');
@@ -53,17 +52,6 @@ function renderCard(cardData) {
     openModal(popupImage);
   }, currentUserId);
 
-  const deleteButton = cardElement.querySelector('.card__delete-button');
-  if (deleteButton && deleteButton.style.display !== 'none') {
-    deleteButton.addEventListener('click', () => {
-      deleteCard(cardData._id)
-        .then(() => {
-          cardElement.remove();
-        })
-        .catch(err => console.error(err));
-    });
-  }
-
   cardsContainer.prepend(cardElement);
 }
 
@@ -73,7 +61,6 @@ profileEditButton.addEventListener('click', () => {
   jobInput.value = profileJob.textContent;
 
   clearValidation(formEdit, validationConfig);
-  toggleButtonState(formEdit.querySelector('.popup__button'), true);
 
   openModal(popupEdit);
 });
@@ -82,7 +69,6 @@ profileAddButton.addEventListener('click', () => {
   formAdd.reset();
 
   clearValidation(formAdd, validationConfig);
-  toggleButtonState(formAdd.querySelector('.popup__button'), false);
 
   openModal(popupAdd);
 });
@@ -98,13 +84,12 @@ profileAvatarButton.addEventListener('click', () => {
   avatarForm.reset();
 
   clearValidation(avatarForm, validationConfig);
-  toggleButtonState(avatarSubmitBtn, false);
 
   openModal(popupAvatar);
 });
 
 // Закрытие попапов по кнопке закрытия
-document.querySelectorAll('.popup__close').forEach((button) => {
+document.querySelectorAll('.popup__close, .popup__close-button').forEach((button) => {
   const popup = button.closest('.popup');
   button.addEventListener('click', () => closeModal(popup));
 });

@@ -1,5 +1,5 @@
 // card.js
-import { putLike, removeLike } from '../components/api.js';
+import { putLike, removeLike, deleteCard } from '../components/api.js';
 
 export function createCard(cardData, handleCardClick, currentUserId) {
   const cardTemplate = document.getElementById('card-template').content.querySelector('.places__item');
@@ -16,7 +16,7 @@ export function createCard(cardData, handleCardClick, currentUserId) {
   cardTitle.textContent = cardData.name;
   likeCountElem.textContent = cardData.likes.length;
 
-  // Лайк
+  // Активный лайк
   if (cardData.likes.some(user => user._id === currentUserId)) {
     likeButton.classList.add('card__like-button_is-active');
   }
@@ -35,12 +35,19 @@ export function createCard(cardData, handleCardClick, currentUserId) {
       });
   });
 
-  // Удаление кнопки, если владелец не текущий пользователь
+  // Удаление карточки
   if (!cardData.owner || cardData.owner._id !== currentUserId) {
     deleteButton.style.display = 'none';
+  } else {
+    deleteButton.addEventListener('click', () => {
+      deleteCard(cardData._id)
+        .then(() => {
+          cardElement.remove();
+        })
+        .catch(err => console.error(err));
+    });
   }
 
-  // Клик по картинке — открыть попап с картинкой
   cardImage.addEventListener('click', () => {
     handleCardClick(cardData);
   });
