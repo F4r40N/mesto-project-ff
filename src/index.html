@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!doctype html>
 <html lang="ru">
 <head>
@@ -44,6 +45,7 @@
           placeholder="Имя" 
           required
           pattern="^[a-zA-Zа-яА-ЯёЁ \-]{2,40}$"
+          data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
           title="Имя должно содержать от 2 до 40 символов (только буквы, пробелы и дефисы)"/>
         <span class="popup__input-error name-error popup__error"></span>
 
@@ -53,7 +55,8 @@
           class="popup__input popup__input_type_description" 
           placeholder="Занятие" 
           required
-          pattern="^[a-zA-Zа-яА-ЯёЁ \-]{2,200}$"
+          minlength="2"
+          maxlength="200"
           title="Описание должно содержать от 2 до 200 символов"/>
         <span class="popup__input-error description-error popup__error"></span>
 

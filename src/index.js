@@ -44,14 +44,16 @@ const popupImageCaption = popupImage.querySelector('.popup__caption');
 
 let currentUserId = null;
 
-function renderCard(cardData) {
-  const cardElement = createCard(cardData, (data) => {
-    popupImageImg.src = data.link;
-    popupImageImg.alt = data.name;
-    popupImageCaption.textContent = data.name;
-    openModal(popupImage);
-  }, currentUserId);
+// Функция для открытия просмотра карточки
+function handleCardClick(data) {
+  popupImageImg.src = data.link;
+  popupImageImg.alt = data.name;
+  popupImageCaption.textContent = data.name;
+  openModal(popupImage);
+}
 
+function renderCard(cardData) {
+  const cardElement = createCard(cardData, handleCardClick, currentUserId);
   cardsContainer.prepend(cardElement);
 }
 

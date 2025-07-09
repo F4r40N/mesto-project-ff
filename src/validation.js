@@ -1,4 +1,78 @@
 // validation.js
+
+// Показать ошибку для input
+export function showInputError(input, message, config) {
+  const errorElem = input.nextElementSibling;
+  input.classList.add(config.inputErrorClass);
+  if (errorElem) {
+    errorElem.textContent = message;
+  }
+}
+
+// Скрыть ошибку для input
+export function hideInputError(input, config) {
+  const errorElem = input.nextElementSibling;
+  input.classList.remove(config.inputErrorClass);
+  if (errorElem) {
+    errorElem.textContent = '';
+  }
+}
+
+// Проверить валидность input с кастомной логикой
+export function validateInput(input, config) {
+  input.setCustomValidity('');
+
+  // Кастомная проверка для поля "name"
+  if (input.name === 'name' || input.name === 'place-name') {
+    const pattern = input.getAttribute('pattern');
+    const value = input.value;
+    if (value.length > 0 && pattern) {
+      const regex = new RegExp(pattern);
+      if (!regex.test(value)) {
+        const customMessage = input.dataset.errorMessage || 'Неверный формат';
+        input.setCustomValidity(customMessage);
+      }
+    }
+  }
+
+  // Для поля description проверяем minlength и maxlength через стандартную валидацию, кастомное сообщение не требуется
+
+  if (!input.validity.valid) {
+    showInputError(input, input.validationMessage, config);
+    return false;
+  }
+
+  hideInputError(input, config);
+  return true;
+}
+
+// Проверить, есть ли невалидные input в форме
+export function hasInvalidInput(inputs, config) {
+  return inputs.some(input => !validateInput(input, config));
+}
+
+// Деактивировать кнопку отправки
+export const disableSubmitButton = (buttonElement, config) => {
+  buttonElement.disabled = true;
+  buttonElement.classList.add(config.inactiveButtonClass);
+};
+
+// Активировать кнопку отправки
+export const enableSubmitButton = (buttonElement, config) => {
+  buttonElement.disabled = false;
+  buttonElement.classList.remove(config.inactiveButtonClass);
+};
+
+// Переключить состояние кнопки в зависимости от валидности формы
+export function toggleButtonState(inputs, button, config) {
+  if (hasInvalidInput(inputs, config)) {
+    disableSubmitButton(button, config);
+  } else {
+    enableSubmitButton(button, config);
+  }
+}
+
+// Основная функция валидации для всех форм на странице
 export function enableValidation(config) {
   const forms = Array.from(document.querySelectorAll(config.formSelector));
 
@@ -6,85 +80,27 @@ export function enableValidation(config) {
     const inputs = Array.from(form.querySelectorAll(config.inputSelector));
     const button = form.querySelector(config.submitButtonSelector);
 
-    function showInputError(input, message) {
-      const errorElem = input.nextElementSibling;
-      input.classList.add(config.inputErrorClass);
-      if (errorElem) {
-        errorElem.textContent = message;
-      }
-    }
-
-    function hideInputError(input) {
-      const errorElem = input.nextElementSibling;
-      input.classList.remove(config.inputErrorClass);
-      if (errorElem) {
-        errorElem.textContent = '';
-      }
-    }
-
-    function validateInput(input) {
-      input.setCustomValidity('');
-
-      if (input.name === 'place-name') {
-        const pattern = input.getAttribute('pattern');
-        const value = input.value;
-
-        if (value.length > 0 && pattern) {
-          const regex = new RegExp(pattern);
-          if (!regex.test(value)) {
-            const customMessage = input.dataset.errorMessage || 'Неверный формат';
-            input.setCustomValidity(customMessage);
-          }
-        }
-      }
-
-      if (!input.validity.valid) {
-        showInputError(input, input.validationMessage);
-        return false;
-      }
-
-      hideInputError(input);
-      return true;
-    }
-
-    function hasInvalidInput() {
-      return inputs.some(input => !validateInput(input));
-    }
-
-    function toggleButtonState() {
-      if (hasInvalidInput()) {
-        button.disabled = true;
-        button.classList.add(config.inactiveButtonClass);
-      } else {
-        button.disabled = false;
-        button.classList.remove(config.inactiveButtonClass);
-      }
-    }
-
     inputs.forEach(input => {
       input.addEventListener('input', () => {
-        validateInput(input);
-        toggleButtonState();
+        validateInput(input, config);
+        toggleButtonState(inputs, button, config);
       });
     });
 
-    toggleButtonState();
+    // Инициализация состояния кнопки при загрузке
+    toggleButtonState(inputs, button, config);
   });
 }
 
+// Очистка ошибок и деактивация кнопки при открытии формы
 export function clearValidation(formElement, config) {
   const inputs = Array.from(formElement.querySelectorAll(config.inputSelector));
   const button = formElement.querySelector(config.submitButtonSelector);
 
   inputs.forEach(input => {
     input.setCustomValidity('');
-    const errorElem = input.nextElementSibling;
-    if (errorElem && errorElem.classList.contains('popup__error')) {
-      errorElem.textContent = '';
-    }
-    input.classList.remove(config.inputErrorClass);
+    hideInputError(input, config);
   });
 
-  button.disabled = true;
-  button.classList.add(config.inactiveButtonClass);
+  disableSubmitButton(button, config);
 }
