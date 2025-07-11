@@ -8,13 +8,13 @@ export function createCard(cardData, handleCardClick, currentUserId) {
   const cardImage = cardElement.querySelector('.card__image');
   const cardTitle = cardElement.querySelector('.card__title');
   const likeButton = cardElement.querySelector('.card__like-button');
-  const likeCountElem = cardElement.querySelector('.card__like-count');
+  const likeCountElement = cardElement.querySelector('.card__like-count');
   const deleteButton = cardElement.querySelector('.card__delete-button');
 
   cardImage.src = cardData.link;
   cardImage.alt = cardData.name;
   cardTitle.textContent = cardData.name;
-  likeCountElem.textContent = cardData.likes.length;
+  likeCountElement.textContent = cardData.likes.length;
 
   // Активный лайк
   if (cardData.likes.some(user => user._id === currentUserId)) {
@@ -28,10 +28,11 @@ export function createCard(cardData, handleCardClick, currentUserId) {
       .then(updatedCard => {
         const isNowLiked = updatedCard.likes.some(user => user._id === currentUserId);
         likeButton.classList.toggle('card__like-button_is-active', isNowLiked);
-        likeCountElem.textContent = updatedCard.likes.length;
+        likeCountElement.textContent = updatedCard.likes.length;
       })
       .catch(err => {
         console.error('Ошибка при обновлении лайка:', err);
+        alert('Не удалось обновить лайк');
       });
   });
 
@@ -40,11 +41,16 @@ export function createCard(cardData, handleCardClick, currentUserId) {
     deleteButton.style.display = 'none';
   } else {
     deleteButton.addEventListener('click', () => {
-      deleteCard(cardData._id)
-        .then(() => {
-          cardElement.remove();
-        })
-        .catch(err => console.error(err));
+      if (confirm('Вы уверены, что хотите удалить эту карточку?')) {
+        deleteCard(cardData._id)
+          .then(() => {
+            cardElement.remove();
+          })
+          .catch(err => {
+            console.error(err);
+            alert('Не удалось удалить карточку');
+          });
+      }
     });
   }
 

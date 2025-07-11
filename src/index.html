@@ -44,7 +44,9 @@
           class="popup__input popup__input_type_name" 
           placeholder="Имя" 
           required
-          pattern="^[a-zA-Zа-яА-ЯёЁ \-]{2,40}$"
+          minlength="2"
+          maxlength="40"
+          pattern="^[a-zA-Zа-яА-ЯёЁ \-]+$"
           data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
           title="Имя должно содержать от 2 до 40 символов (только буквы, пробелы и дефисы)"/>
         <span class="popup__input-error name-error popup__error"></span>
@@ -57,6 +59,8 @@
           required
           minlength="2"
           maxlength="200"
+          pattern="^[a-zA-Zа-яА-ЯёЁ \-]+$"
+          data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
           title="Описание должно содержать от 2 до 200 символов"/>
         <span class="popup__input-error description-error popup__error"></span>
 
@@ -79,7 +83,7 @@
           required 
           minlength="2" 
           maxlength="30"
-          pattern="^[a-zA-Zа-яА-ЯёЁ \-]{2,30}$"
+          pattern="^[a-zA-Zа-яА-ЯёЁ \-]+$"
           data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
           title="Название должно содержать от 2 до 30 символов: буквы, пробелы и дефисы." />
         <span class="popup__input-error place-name-error popup__error"></span>
@@ -89,7 +93,10 @@
           name="link" 
           class="popup__input popup__input_type_url" 
           placeholder="Ссылка на картинку" 
-          required/>
+          required
+          pattern="^(?!\d+$).+"
+          data-error-message="Ссылка не должна содержать только цифры"
+          title="Введите корректный URL"/>
         <span class="popup__input-error link-error popup__error"></span>
 
         <button type="submit" class="button popup__button">Сохранить</button>

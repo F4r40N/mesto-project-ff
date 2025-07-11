@@ -2,40 +2,56 @@
 
 // Показать ошибку для input
 export function showInputError(input, message, config) {
-  const errorElem = input.nextElementSibling;
+  const errorElement = input.nextElementSibling;
   input.classList.add(config.inputErrorClass);
-  if (errorElem) {
-    errorElem.textContent = message;
+  if (errorElement) {
+    errorElement.textContent = message;
   }
 }
 
 // Скрыть ошибку для input
 export function hideInputError(input, config) {
-  const errorElem = input.nextElementSibling;
+  const errorElement = input.nextElementSibling;
   input.classList.remove(config.inputErrorClass);
-  if (errorElem) {
-    errorElem.textContent = '';
+  if (errorElement) {
+    errorElement.textContent = '';
   }
 }
 
-// Проверить валидность input с кастомной логикой
+// Проверка валидности input с кастомной логикой
 export function validateInput(input, config) {
   input.setCustomValidity('');
+  const value = input.value.trim();
 
-  // Кастомная проверка для поля "name"
-  if (input.name === 'name' || input.name === 'place-name') {
+  // Для полей name, description, place-name - проверяем паттерн и длину
+  if (['name', 'description', 'place-name'].includes(input.name)) {
     const pattern = input.getAttribute('pattern');
-    const value = input.value;
-    if (value.length > 0 && pattern) {
+    const minLength = input.getAttribute('minlength') ? Number(input.getAttribute('minlength')) : 0;
+
+    // Проверка длины
+    if (value.length > 0 && value.length < minLength) {
+      input.setCustomValidity(`Текст должен быть не короче 2 симв. Длина текста сейчас: ${value.length} символ${value.length === 1 ? '' : 'ов'}.`);
+    } else if (pattern && value.length > 0) {
+      // Проверка паттерна
       const regex = new RegExp(pattern);
       if (!regex.test(value)) {
-        const customMessage = input.dataset.errorMessage || 'Неверный формат';
+        const customMessage = input.dataset.errorMessage || 'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы';
         input.setCustomValidity(customMessage);
       }
     }
   }
 
-  // Для поля description проверяем minlength и maxlength через стандартную валидацию, кастомное сообщение не требуется
+  // Для поля link - проверяем, что не только цифры (по паттерну в html)
+  if (input.name === 'link') {
+    const pattern = input.getAttribute('pattern');
+    if (value.length > 0 && pattern) {
+      const regex = new RegExp(pattern);
+      if (!regex.test(value)) {
+        const customMessage = input.dataset.errorMessage || 'Ссылка не должна содержать только цифры';
+        input.setCustomValidity(customMessage);
+      }
+    }
+  }
 
   if (!input.validity.valid) {
     showInputError(input, input.validationMessage, config);
