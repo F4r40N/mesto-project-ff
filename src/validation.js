@@ -21,35 +21,20 @@ export function hideInputError(input, config) {
 // Проверка валидности input с кастомной логикой
 export function validateInput(input, config) {
   input.setCustomValidity('');
-  const value = input.value.trim();
 
-  // Для полей name, description, place-name - проверяем паттерн и длину
-  if (['name', 'description', 'place-name'].includes(input.name)) {
-    const pattern = input.getAttribute('pattern');
-    const minLength = input.getAttribute('minlength') ? Number(input.getAttribute('minlength')) : 0;
-
-    // Проверка длины
-    if (value.length > 0 && value.length < minLength) {
-      input.setCustomValidity(`Текст должен быть не короче 2 симв. Длина текста сейчас: ${value.length} символ${value.length === 1 ? '' : 'ов'}.`);
-    } else if (pattern && value.length > 0) {
-      // Проверка паттерна
-      const regex = new RegExp(pattern);
-      if (!regex.test(value)) {
-        const customMessage = input.dataset.errorMessage || 'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы';
-        input.setCustomValidity(customMessage);
-      }
-    }
+  // Проверка паттерна - если patternMismatch, ставим кастомное сообщение из data-error-message
+  if (input.validity.patternMismatch) {
+    input.setCustomValidity(input.dataset.errorMessage || '');
+  } else {
+    input.setCustomValidity('');
   }
 
-  // Для поля link - проверяем, что не только цифры (по паттерну в html)
-  if (input.name === 'link') {
-    const pattern = input.getAttribute('pattern');
-    if (value.length > 0 && pattern) {
-      const regex = new RegExp(pattern);
-      if (!regex.test(value)) {
-        const customMessage = input.dataset.errorMessage || 'Ссылка не должна содержать только цифры';
-        input.setCustomValidity(customMessage);
-      }
+  // Дополнительная проверка для полей name, description, place-name на разрешённые символы
+  if (['name', 'description', 'place-name'].includes(input.name)) {
+    // Регулярное выражение для проверки допустимых символов
+    const allowedPattern = /^[a-zA-Zа-яА-ЯёЁ \-]+$/;
+    if (input.value.length > 0 && !allowedPattern.test(input.value)) {
+      input.setCustomValidity(input.dataset.errorMessage || 'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы');
     }
   }
 
@@ -61,6 +46,7 @@ export function validateInput(input, config) {
   hideInputError(input, config);
   return true;
 }
+
 
 // Проверить, есть ли невалидные input в форме
 export function hasInvalidInput(inputs, config) {
